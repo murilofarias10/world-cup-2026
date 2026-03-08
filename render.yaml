@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: world-cup-2026
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+
+    # Render injects PORT=10000 automatically for Docker web services.
+    # We forward it here explicitly so envsubst in the container can read it.
+    envVars:
+      - key: PORT
+        value: 10000
