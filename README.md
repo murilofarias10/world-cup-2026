@@ -2,23 +2,34 @@
 
 > Built for the **Cursor Hackathon 2026**
 
-A full-stack web application for tracking the FIFA World Cup 2026 — featuring match schedules, team information, a Watch Party organiser, an interactive Leaflet map, and an AI chat assistant.
+A full-stack web application for tracking the FIFA World Cup 2026 — featuring match schedules, team information, a Watch Party organiser, an interactive Leaflet map, an AI chat assistant, and full user authentication powered by Supabase.
 
 ---
 
 ## Tech Stack
 
-| Layer     | Tech                                                                    |
-|-----------|-------------------------------------------------------------------------|
-| Frontend  | React 19 · Vite · React Router v7                                       |
-| Map       | React Leaflet 5 · Leaflet 1.9 · topojson-client · CartoDB Voyager tiles |
-| Backend   | Node.js · Express                                                       |
-| Data      | `fifa-world-cup-2026-UTC.csv` (104 matches · 48 teams · 16 venues)     |
-| AI Chat   | OpenAI API                                                              |
+| Layer       | Tech                                                                          |
+|-------------|-------------------------------------------------------------------------------|
+| Frontend    | React 19 · Vite · React Router v7                                             |
+| Map         | React Leaflet 5 · Leaflet 1.9 · topojson-client · CartoDB Voyager tiles      |
+| Backend     | Node.js · Express                                                             |
+| Data        | `fifa-world-cup-2026-UTC.csv` (104 matches · 48 teams · 16 venues)           |
+| Database    | Supabase (PostgreSQL) — matches · teams · host cities · watch party · users   |
+| Auth        | Supabase Auth — email/password sign-up & sign-in with user profiles           |
+| AI Chat     | OpenAI API                                                                    |
 
 ---
 
 ## Features
+
+### Authentication
+- **Login / Register page** — initial screen with two options: *Log In* or *Create Account*
+- **Login** — email + password via Supabase Auth
+- **Register** — name, email, country, password + two required consent checkboxes:
+  - "I will be respectful with others"
+  - "I confirm that I am older than 18 years old"
+- **Navbar** — shows the user's avatar and a *Sign Out* button when logged in
+- **User profiles** stored in Supabase (`user_profiles` table), auto-created on signup via a PostgreSQL trigger
 
 ### Teams Page
 - **Participating Nations carousel** — two-row infinite marquee with all 42 confirmed nations, flags, and group labels; hover to pause; team modal on click
@@ -68,13 +79,17 @@ fifa-2026-app/
     ├── public/
     │   └── flags/                         # Static flag assets
     └── src/
+        ├── context/
+        │   └── AuthContext.jsx            # Global Supabase session & profile state
+        ├── lib/
+        │   └── supabase.js                # Supabase client (reads VITE_ env vars)
         ├── components/
         │   ├── HostNationsMap.jsx/css      # Interactive Leaflet host-nations map
         │   ├── TeamsCarousel.jsx/css       # Two-row infinite-marquee carousel
         │   ├── TeamCarouselCard.jsx        # Individual carousel card + flag fallback
         │   ├── MatchCard.jsx/css           # Match card with flags + Watch Party CTA
         │   ├── ChatWidget.jsx              # AI chat bubble
-        │   ├── Navbar.jsx/css
+        │   ├── Navbar.jsx/css              # Navigation + auth state (avatar / sign-out)
         │   ├── TournamentBracket.jsx
         │   ├── MatchModal.jsx
         │   └── watchparty/
@@ -89,7 +104,7 @@ fifa-2026-app/
         │   ├── MatchesPage.jsx/css        # Advanced filters + featured + match grid
         │   ├── WatchPartyPage.jsx/css     # Split-screen watch party layout
         │   ├── BracketPage.jsx
-        │   └── LoginPage.jsx/css
+        │   └── LoginPage.jsx/css          # Auth: choice → login or register flows
         ├── services/
         │   ├── api.js                     # fetchMatches · fetchTeams · fetchMatch
         │   ├── matchService.js            # Interest tracking (localStorage)
@@ -98,6 +113,22 @@ fifa-2026-app/
             ├── flagUtils.js               # Team name → flag path · CAROUSEL_NATIONS
             └── matchUtils.js              # Date helpers · match classification
 ```
+
+---
+
+## Database Schema (Supabase)
+
+| Table                  | Rows | Description                                              |
+|------------------------|------|----------------------------------------------------------|
+| `matches`              | 104  | All FIFA 2026 fixtures — group stage through the Final   |
+| `teams`                | 48   | Participating nations with group assignments             |
+| `host_cities`          | 16   | Host venues with coordinates (lat/lng) for the map       |
+| `watch_party_venues`   | 10   | Watch-party bars & lounges with city, capacity, address  |
+| `user_profiles`        | —    | Extended user info: name, country, consent flags         |
+| `watch_party_interests`| —    | Per-user match interest (replaces localStorage)          |
+| `watch_party_messages` | —    | Real-time chat messages per match                        |
+
+Row Level Security is enabled on every table. Public reference data (matches, teams, host cities, venues) is readable by anyone. User data is readable only by the owning user.
 
 ---
 
@@ -122,12 +153,25 @@ npm install --legacy-peer-deps
 
 ### 2. Configure environment
 
-Create `backend/.env` (copy from `backend/.env.example`):
+**Backend** — create `backend/.env` (copy from `backend/.env.example`):
 
 ```env
 PORT=4000
 OPENAI_API_KEY=your_openai_key_here
+
+# Supabase
+SUPABASE_URL=https://<your-project-ref>.supabase.co
+SUPABASE_ANON_KEY=your_supabase_anon_key_here
 ```
+
+**Frontend** — create `frontend/.env.local`:
+
+```env
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+```
+
+> Both keys are available in your Supabase project under **Settings → API**.
 
 ### 3. Run
 
@@ -172,8 +216,9 @@ Open [http://localhost:3000](http://localhost:3000)
 
 - The map uses [CartoDB Voyager](https://carto.com/basemaps/) tiles — free for development, no API key required.
 - Country boundary overlays are generated client-side from [`world-atlas@2`](https://github.com/topojson/world-atlas) (110m resolution) via `topojson-client`.
-- All venue and chat data is mocked on the frontend; the architecture is designed so a real backend can be wired in later.
+- Watch party venue and chat data is currently mocked on the frontend; the Supabase tables (`watch_party_venues`, `watch_party_messages`, `watch_party_interests`) are ready to be wired in.
+- Ctrl+C on Windows may leave Node.js holding the port. The server registers `SIGINT`/`SIGTERM` handlers to close cleanly. If port 4000 is still in use, run `netstat -ano | findstr :4000` and `taskkill /PID <pid> /F`.
 
 ---
 
-*Cursor Hackathon 2026 — built with React + Node.js*
+*Cursor Hackathon 2026 — built with React + Node.js + Supabase*
