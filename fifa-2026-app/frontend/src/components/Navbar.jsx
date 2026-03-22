@@ -1,7 +1,16 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 import './Navbar.css';
 
 function Navbar() {
+  const { session, profile, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleSignOut() {
+    await signOut();
+    navigate('/login');
+  }
+
   return (
     <nav className="navbar">
       <div className="navbar-inner">
@@ -25,11 +34,22 @@ function Navbar() {
               Bracket
             </NavLink>
           </li>
-          <li>
-            <NavLink to="/login" className={({ isActive }) => isActive ? 'active' : ''}>
-              Login
-            </NavLink>
-          </li>
+          {session ? (
+            <li className="navbar-user">
+              <span className="navbar-avatar" title={profile?.name ?? session.user.email}>
+                {(profile?.name ?? session.user.email)?.[0]?.toUpperCase()}
+              </span>
+              <button className="navbar-signout" onClick={handleSignOut}>
+                Sign Out
+              </button>
+            </li>
+          ) : (
+            <li>
+              <NavLink to="/login" className={({ isActive }) => isActive ? 'active' : ''}>
+                Login
+              </NavLink>
+            </li>
+          )}
         </ul>
       </div>
     </nav>

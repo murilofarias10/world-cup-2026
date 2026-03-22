@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.99.3",
     "d3-geo": "^3.1.1",
     "leaflet": "^1.9.4",
     "prop-types": "^15.8.1",
