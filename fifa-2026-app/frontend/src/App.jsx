@@ -3,6 +3,7 @@ import Navbar from './components/Navbar.jsx';
 import TeamsPage from './pages/TeamsPage.jsx';
 import MatchesPage from './pages/MatchesPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import BracketPage from './pages/BracketPage.jsx';
 import ChatWidget from './components/ChatWidget.jsx';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Navigate to="/matches" replace />} />
           <Route path="/teams" element={<TeamsPage />} />
           <Route path="/matches" element={<MatchesPage />} />
+          <Route path="/bracket" element={<BracketPage />} />
           <Route path="/login" element={<LoginPage />} />
         </Routes>
       </main>

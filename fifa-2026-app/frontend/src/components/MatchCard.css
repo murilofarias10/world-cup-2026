@@ -1,74 +1,220 @@
+/* ── Card shell ─────────────────────────────────────────────────── */
 .match-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  background: #fff;
+  border: 1.5px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+  position: relative;
 }
 
 .match-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  border-color: rgba(86, 4, 44, 0.25);
 }
 
-.match-card-header {
+/* ── Variants ───────────────────────────────────────────────────── */
+.match-card--premium {
+  border-color: var(--color-gold);
+  background: linear-gradient(160deg, #fffdf5 0%, #fff 60%);
+}
+.match-card--premium:hover {
+  box-shadow: 0 10px 34px rgba(212, 168, 67, 0.22);
+  border-color: var(--color-gold);
+}
+
+.match-card--opening {
+  border-color: var(--color-primary);
+  background: linear-gradient(160deg, #fcf5f8 0%, #fff 60%);
+}
+
+.match-card--live {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.match-card--featured {
+  border-width: 2px;
+}
+.match-card--featured .mc-team { font-size: 1.1rem; }
+.match-card--featured .mc-body { padding: 1rem 1rem; }
+
+/* ── Host nation gold strip (bottom) ────────────────────────────── */
+.mc-host-strip {
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-gold), transparent);
+  flex-shrink: 0;
+}
+
+/* ── Top bar ────────────────────────────────────────────────────── */
+.mc-top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
+  justify-content: space-between;
+  padding: 0.55rem 0.85rem;
+  background: #fafafa;
+  border-bottom: 1px solid #f1f1f1;
+  gap: 0.5rem;
 }
 
-.match-round {
-  font-size: 0.75rem;
+.mc-top-left {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.mc-top-right {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* ── Group badge ────────────────────────────────────────────────── */
+.mc-badge-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.67rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--color-primary);
-  background: rgba(86, 4, 44, 0.08);
-  padding: 0.2rem 0.6rem;
-  border-radius: 6px;
+  letter-spacing: 0.3px;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
-.match-number {
-  font-size: 0.75rem;
+.mc-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Round badge ────────────────────────────────────────────────── */
+.mc-badge-round {
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
   color: var(--color-text-secondary);
+  background: #f3f4f6;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ── Labels (Opening / Final / Semi) ────────────────────────────── */
+.mc-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.mc-label--opening {
+  background: rgba(86, 4, 44, 0.08);
+  color: var(--color-primary);
+}
+.mc-label--premium {
+  background: rgba(212, 168, 67, 0.15);
+  color: #92400e;
+}
+
+/* ── Status badge ───────────────────────────────────────────────── */
+.mc-status {
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.mc-status--scheduled { background: #f0f9ff; color: #0369a1; }
+.mc-status--live      { background: #dcfce7; color: #15803d; }
+.mc-status--finished  { background: #f3f4f6; color: #6b7280; }
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(1.4); }
+}
+.mc-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #16a34a;
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+/* ── Match number ───────────────────────────────────────────────── */
+.mc-num {
+  font-size: 0.63rem;
+  color: #c4c9d4;
   font-weight: 500;
 }
 
-.match-card-teams {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.team {
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--color-text);
-}
-
-.vs {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-accent);
-  text-transform: uppercase;
-}
-
-.match-card-meta {
+/* ── Body (teams) ───────────────────────────────────────────────── */
+.mc-body {
+  padding: 0.75rem 0.85rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  font-size: 0.8rem;
-  color: var(--color-text-secondary);
+  gap: 0;
+  flex: 1;
 }
 
-.match-result {
-  margin-top: 0.75rem;
-  text-align: center;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--color-accent);
+.mc-team {
+  font-size: 0.97rem;
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
+.mc-team--tbd {
+  font-weight: 400;
+  font-style: italic;
+  color: #c4c9d4;
+  font-size: 0.88rem;
+}
+
+.mc-vs {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #d1d5db;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 0.28rem 0;
+}
+
+.mc-score {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--color-primary);
+  letter-spacing: 2px;
+  margin: 0.22rem 0;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+.mc-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.48rem 0.85rem;
+  background: #fafafa;
+  border-top: 1px solid #f1f1f1;
+  font-size: 0.68rem;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.mc-date   { font-weight: 600; color: #374151; flex-shrink: 0; }
+.mc-time   { flex-shrink: 0; }
+.mc-venue  { overflow: hidden; text-overflow: ellipsis; }
+.mc-sep    { color: #d1d5db; flex-shrink: 0; }

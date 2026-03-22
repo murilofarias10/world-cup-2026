@@ -21,6 +21,11 @@ function Navbar() {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/bracket" className={({ isActive }) => isActive ? 'active' : ''}>
+              Bracket
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/login" className={({ isActive }) => isActive ? 'active' : ''}>
               Login
             </NavLink>

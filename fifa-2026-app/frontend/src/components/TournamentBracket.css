@@ -1,0 +1,273 @@
+/* ─────────────────────────────────────────────────────────────────
+   TournamentBracket.css
+   Connector lines are rendered as absolutely-positioned divs INSIDE
+   .tb-col-body, drawn AFTER all .tb-slot-card elements so they never
+   paint on top of cards. pointer-events: none on .tb-line ensures
+   cards stay interactive.
+───────────────────────────────────────────────────────────────── */
+
+/* ── Root ───────────────────────────────────────────────────────── */
+.tb-root {
+  width: 100%;
+}
+
+/* ── Horizontal scroll wrapper ──────────────────────────────────── */
+.tb-scroll-wrap {
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 1.25rem 2rem 2rem;
+  /* Gradient fade on left and right edges for a premium feel */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 2.5rem,
+    #000 calc(100% - 2.5rem),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 2.5rem,
+    #000 calc(100% - 2.5rem),
+    transparent 100%
+  );
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+  /* Thin custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-border);
+}
+.tb-scroll-wrap::-webkit-scrollbar        { height: 5px; }
+.tb-scroll-wrap::-webkit-scrollbar-track  { background: var(--color-border); border-radius: 3px; }
+.tb-scroll-wrap::-webkit-scrollbar-thumb  { background: var(--color-primary); border-radius: 3px; }
+
+/* ── Board: columns side-by-side ────────────────────────────────── */
+.tb-board {
+  display: flex;
+  align-items: flex-start;
+  min-width: max-content;
+  padding: 0 0.5rem;
+}
+
+/* ── Column ─────────────────────────────────────────────────────── */
+@keyframes tb-col-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.tb-col {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  /* Each column is an isolated stacking context so connectors
+     from one column never interfere with cards in another */
+  isolation: isolate;
+  animation: tb-col-in 0.4s ease both;
+}
+
+/* ── Column header ──────────────────────────────────────────────── */
+.tb-col-head {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+  background: var(--color-primary);
+  padding: 0.5rem 0;
+  border-radius: 6px 6px 0 0;
+  white-space: nowrap;
+  margin-bottom: 4px;
+}
+
+.tb-col--final .tb-col-head {
+  background: linear-gradient(90deg, #b8860b, var(--color-gold), #e8c050, var(--color-gold));
+  background-size: 200% 100%;
+  animation: tb-gold-shimmer 3s ease-in-out infinite;
+  color: #3a0020;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+}
+
+@keyframes tb-gold-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+/* ── Column body: positioning context for cards + lines ─────────── */
+.tb-col-body {
+  position: relative;
+  /* overflow MUST stay visible so connector stubs extend into the gap */
+  overflow: visible;
+}
+
+/* ── Card wrapper (absolutely positioned within column body) ─────── */
+.tb-slot-card {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  /* z-index: 1 ensures cards sit above .tb-line elements
+     within the same isolation context */
+  z-index: 1;
+}
+
+/* ── Match card ─────────────────────────────────────────────────── */
+@keyframes tb-card-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.tb-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  background: #fff;
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+  animation: tb-card-in 0.3s ease both;
+  /* Clip contents — no overflow bleed from the card itself */
+  overflow: hidden;
+}
+
+.tb-card:hover {
+  box-shadow: 0 4px 18px rgba(86, 4, 44, 0.15);
+  transform: translateY(-2px);
+  border-color: rgba(86, 4, 44, 0.35);
+}
+
+.tb-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.tb-card--final {
+  border-color: var(--color-gold);
+  background: linear-gradient(135deg, #fff 0%, #fffcf0 100%);
+}
+.tb-card--final:hover {
+  box-shadow: 0 6px 24px rgba(212, 168, 67, 0.3);
+  border-color: var(--color-gold);
+}
+
+.tb-card--played {
+  border-color: rgba(86, 4, 44, 0.25);
+  background: #fdfbfd;
+}
+
+/* ── Team names ─────────────────────────────────────────────────── */
+.tb-team {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  transition: color 0.15s ease;
+}
+
+.tb-team--tbd {
+  font-weight: 400;
+  font-style: italic;
+  color: #b0b8c1;
+  font-size: 0.72rem;
+}
+
+/* Winner highlight — applied when result is known */
+.tb-team--winner {
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.tb-card--played .tb-team:not(.tb-team--winner):not(.tb-team--tbd) {
+  color: #9ca3af;
+}
+
+.tb-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 0.22rem 0;
+}
+
+/* ── Result badge ───────────────────────────────────────────────── */
+.tb-result {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  text-align: center;
+  margin-top: 0.2rem;
+}
+
+/* ── Date / venue meta ──────────────────────────────────────────── */
+.tb-card-meta {
+  font-size: 0.62rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0.22rem;
+  line-height: 1.2;
+}
+
+/* ── Connector line divs ────────────────────────────────────────── */
+.tb-line {
+  position: absolute;
+  /* z-index: 0 keeps lines below cards (which are z-index: 1
+     via .tb-slot-card within the same isolation context) */
+  z-index: 0;
+  pointer-events: none;  /* never block card clicks */
+}
+
+/* ── 3rd-place section ──────────────────────────────────────────── */
+.tb-third-wrap {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: tb-col-in 0.4s 0.45s ease both;
+}
+
+.tb-third-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-text-secondary);
+}
+
+/* ── Loading spinner ────────────────────────────────────────────── */
+.tb-spinner-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+@keyframes tb-spin { to { transform: rotate(360deg); } }
+
+.tb-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: tb-spin 0.75s linear infinite;
+}
+
+/* ── Error / empty ──────────────────────────────────────────────── */
+.tb-error {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 2rem;
+  font-size: 0.95rem;
+}

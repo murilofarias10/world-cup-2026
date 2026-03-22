@@ -1,33 +1,109 @@
+import {
+  getGroupStyle,
+  getMatchStatus,
+  isHostNationMatch,
+  isOpeningMatch,
+  isPremiumMatch,
+  formatShortDate,
+  formatShortTime,
+} from '../utils/matchUtils.js';
 import './MatchCard.css';
 
-function MatchCard({ match }) {
-  const dateStr = new Date(match.date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+// ── Status badge ─────────────────────────────────────────────────
+function StatusBadge({ status }) {
+  const labels = { scheduled: 'Scheduled', live: 'Live', finished: 'FT' };
+  return (
+    <span className={`mc-status mc-status--${status}`}>
+      {status === 'live' && <span className="mc-status-dot" />}
+      {labels[status]}
+    </span>
+  );
+}
+
+// ── Group / Round badge ──────────────────────────────────────────
+function GroupBadge({ group }) {
+  const { bg, text, accent } = getGroupStyle(group);
+  return (
+    <span className="mc-badge-group" style={{ background: bg, color: text }}>
+      <span className="mc-badge-dot" style={{ background: accent }} />
+      {group}
+    </span>
+  );
+}
+
+function RoundBadge({ round }) {
+  return <span className="mc-badge-round">{round}</span>;
+}
+
+// ── The card ─────────────────────────────────────────────────────
+function MatchCard({ match, featured = false }) {
+  const status   = getMatchStatus(match.date);
+  const isHost   = isHostNationMatch(match);
+  const isPremium = isPremiumMatch(match);
+  const isOpening = isOpeningMatch(match);
+  const isTBD    = (t) => !t || t === 'To be announced';
+
+  const classes = [
+    'match-card',
+    featured   ? 'match-card--featured'  : '',
+    isPremium  ? 'match-card--premium'   : '',
+    isHost     ? 'match-card--host'      : '',
+    isOpening  ? 'match-card--opening'   : '',
+    status === 'live' ? 'match-card--live' : '',
+  ].filter(Boolean).join(' ');
+
+  const venue = match.location?.replace(' Stadium', '') ?? '';
 
   return (
-    <div className="match-card">
-      <div className="match-card-header">
-        <span className="match-round">{match.group || match.round}</span>
-        <span className="match-number">#{match.matchNumber}</span>
+    <article className={classes}>
+      {/* Top bar */}
+      <div className="mc-top">
+        <div className="mc-top-left">
+          {match.group
+            ? <GroupBadge group={match.group} />
+            : <RoundBadge round={match.round} />}
+          {isOpening && <span className="mc-label mc-label--opening">Opening</span>}
+          {isPremium && !isOpening && (
+            <span className="mc-label mc-label--premium">
+              {match.round === 'Finals' ? '🏆 Final' : '🥈 Semi'}
+            </span>
+          )}
+        </div>
+        <div className="mc-top-right">
+          <StatusBadge status={status} />
+          <span className="mc-num">#{match.matchNumber}</span>
+        </div>
       </div>
-      <div className="match-card-teams">
-        <span className="team home">{match.homeTeam}</span>
-        <span className="vs">vs</span>
-        <span className="team away">{match.awayTeam}</span>
+
+      {/* Teams */}
+      <div className="mc-body">
+        <span className={`mc-team ${isTBD(match.homeTeam) ? 'mc-team--tbd' : ''}`}>
+          {isTBD(match.homeTeam) ? 'TBD' : match.homeTeam}
+        </span>
+        {match.result
+          ? <span className="mc-score">{match.result}</span>
+          : <span className="mc-vs">vs</span>}
+        <span className={`mc-team ${isTBD(match.awayTeam) ? 'mc-team--tbd' : ''}`}>
+          {isTBD(match.awayTeam) ? 'TBD' : match.awayTeam}
+        </span>
       </div>
-      <div className="match-card-meta">
-        <span className="match-date">{dateStr}</span>
-        <span className="match-location">{match.location}</span>
+
+      {/* Footer */}
+      <div className="mc-footer">
+        <span className="mc-date">{formatShortDate(match.date)}</span>
+        <span className="mc-sep">·</span>
+        <span className="mc-time">{formatShortTime(match.date)}</span>
+        {venue && (
+          <>
+            <span className="mc-sep">·</span>
+            <span className="mc-venue">{venue}</span>
+          </>
+        )}
       </div>
-      {match.result && (
-        <div className="match-result">{match.result}</div>
-      )}
-    </div>
+
+      {/* Host nation accent strip */}
+      {isHost && !isPremium && <div className="mc-host-strip" />}
+    </article>
   );
 }
 
