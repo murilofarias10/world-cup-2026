@@ -1,0 +1,55 @@
+.teams-page .page-header {
+  margin-bottom: 1.5rem;
+}
+
+.teams-page .page-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.teams-search {
+  margin-bottom: 1.5rem;
+}
+
+.teams-search input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.teams-search input:focus {
+  border-color: var(--color-primary);
+}
+
+.teams-flat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+
+.teams-by-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.group-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-primary);
+  display: inline-block;
+}
+
+.group-teams {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
