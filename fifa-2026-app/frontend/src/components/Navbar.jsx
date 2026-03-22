@@ -14,11 +14,19 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        <div className="navbar-brand">
+        <NavLink to="/" className="navbar-brand">
           <span className="brand-icon">⚽</span>
-          <span className="brand-text">FIFA 2026</span>
-        </div>
+          <span className="brand-text">
+            FIFA <span className="brand-text-accent">Connect</span>
+          </span>
+        </NavLink>
+
         <ul className="navbar-links">
+          <li>
+            <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>
+              Home
+            </NavLink>
+          </li>
           <li>
             <NavLink to="/teams" className={({ isActive }) => isActive ? 'active' : ''}>
               Teams
@@ -34,6 +42,7 @@ function Navbar() {
               Bracket
             </NavLink>
           </li>
+
           {session ? (
             <li className="navbar-user">
               <span className="navbar-avatar" title={profile?.name ?? session.user.email}>

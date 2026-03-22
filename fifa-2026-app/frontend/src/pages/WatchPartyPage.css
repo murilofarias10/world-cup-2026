@@ -283,6 +283,32 @@
 .wp-vc-btn--selected    { background: var(--color-primary); color: #fff; }
 .wp-vc-btn--selected:hover { background: #3a0020; border-color: #3a0020; }
 
+/* ── Venue card action row ─ */
+.wp-vc-actions {
+  display: flex;
+  gap: .5rem;
+  margin-top: .35rem;
+}
+
+.wp-vc-actions .wp-vc-btn {
+  flex: 1;
+  margin-top: 0;
+}
+
+.wp-vc-open-btn {
+  padding: .5rem .85rem;
+  border-radius: 8px;
+  border: 1.5px solid #1a1a2e;
+  background: transparent;
+  color: #1a1a2e;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.wp-vc-open-btn:hover { background: #1a1a2e; color: #fff; }
+
 /* ══════════════════════════════════════════════════════════════════
    MATCH DETAILS  (right panel – top section)
 ══════════════════════════════════════════════════════════════════ */

@@ -1,16 +1,29 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import './LoginPage.css';
 
 // ── "Choose action" initial screen ───────────────────────────────────────────
-function ChoiceScreen({ onSelect }) {
+function ChoiceScreen({ onSelect, redirectTo }) {
+  const isWatchParty = redirectTo?.startsWith('/watch-party');
   return (
     <div className="lp-choice">
       <div className="lp-logo">⚽</div>
       <h1 className="lp-title">FIFA World Cup 2026</h1>
-      <p className="lp-subtitle">Fan App — Sign in to join the party</p>
+      {isWatchParty ? (
+        <>
+          <p className="lp-subtitle lp-subtitle--accent">
+            🍺 Sign in to join the Watch Party
+          </p>
+          <p className="lp-redirect-note">
+            Create an account or log in to access Watch Party, venue chat,
+            and fan community features.
+          </p>
+        </>
+      ) : (
+        <p className="lp-subtitle">Fan App — Sign in to join the party</p>
+      )}
       <div className="lp-choice-btns">
         <button className="btn-primary" onClick={() => onSelect('login')}>
           Log In
@@ -19,12 +32,18 @@ function ChoiceScreen({ onSelect }) {
           Create Account
         </button>
       </div>
+      {isWatchParty && (
+        <p className="lp-guest-note">
+          Just browsing?{' '}
+          <a href="/matches" className="lp-guest-link">View matches without signing in →</a>
+        </p>
+      )}
     </div>
   );
 }
 
 // ── Login form ────────────────────────────────────────────────────────────────
-function LoginForm({ onBack }) {
+function LoginForm({ onBack, redirectTo }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,7 +61,7 @@ function LoginForm({ onBack }) {
     if (authError) {
       setError(authError.message);
     } else {
-      navigate('/matches');
+      navigate(redirectTo || '/matches');
     }
   }
 
@@ -87,7 +106,7 @@ function LoginForm({ onBack }) {
 }
 
 // ── Register form ─────────────────────────────────────────────────────────────
-function RegisterForm({ onBack }) {
+function RegisterForm({ onBack, redirectTo }) {
   const navigate = useNavigate();
   const [fields, setFields] = useState({
     name: '',
@@ -143,7 +162,7 @@ function RegisterForm({ onBack }) {
     if (authError) {
       setError(authError.message);
     } else {
-      navigate('/matches');
+      navigate(redirectTo || '/matches');
     }
   }
 
@@ -253,13 +272,21 @@ function RegisterForm({ onBack }) {
 }
 
 // ── Logged-in welcome ──────────────────────────────────────────────────────────
-function WelcomeScreen({ profile, onSignOut }) {
+function WelcomeScreen({ profile, onSignOut, redirectTo, onContinue }) {
+  const isWatchParty = redirectTo?.startsWith('/watch-party');
   return (
     <div className="lp-welcome">
       <div className="lp-avatar">{profile?.name?.[0]?.toUpperCase() ?? '?'}</div>
       <h2>Welcome back, {profile?.name ?? 'Fan'}!</h2>
       <p className="lp-welcome-email">{profile?.email}</p>
       {profile?.country && <p className="lp-welcome-country">🌍 {profile.country}</p>}
+
+      {redirectTo && redirectTo !== '/matches' && (
+        <button className="btn-primary lp-continue-btn" onClick={onContinue}>
+          {isWatchParty ? '🍺 Continue to Watch Party →' : 'Continue →'}
+        </button>
+      )}
+
       <button className="btn-secondary lp-signout" onClick={onSignOut}>
         Sign Out
       </button>
@@ -270,13 +297,24 @@ function WelcomeScreen({ profile, onSignOut }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function LoginPage() {
   const { session, profile, signOut } = useAuth();
-  const [view, setView] = useState('choice');
+  const navigate                       = useNavigate();
+  const [searchParams]                 = useSearchParams();
+  const [view, setView]                = useState('choice');
 
+  // Where to send the user after successful auth
+  const redirectTo = searchParams.get('redirect') || '/matches';
+
+  // If already logged in, bounce to the intended destination immediately
   if (session) {
     return (
       <div className="login-page">
         <div className="login-card">
-          <WelcomeScreen profile={profile} onSignOut={signOut} />
+          <WelcomeScreen
+            profile={profile}
+            onSignOut={signOut}
+            redirectTo={redirectTo}
+            onContinue={() => navigate(redirectTo)}
+          />
         </div>
       </div>
     );
@@ -285,9 +323,9 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-card">
-        {view === 'choice' && <ChoiceScreen onSelect={setView} />}
-        {view === 'login' && <LoginForm onBack={() => setView('choice')} />}
-        {view === 'register' && <RegisterForm onBack={() => setView('choice')} />}
+        {view === 'choice'   && <ChoiceScreen  onSelect={setView} redirectTo={redirectTo} />}
+        {view === 'login'    && <LoginForm     onBack={() => setView('choice')} redirectTo={redirectTo} />}
+        {view === 'register' && <RegisterForm  onBack={() => setView('choice')} redirectTo={redirectTo} />}
       </div>
     </div>
   );

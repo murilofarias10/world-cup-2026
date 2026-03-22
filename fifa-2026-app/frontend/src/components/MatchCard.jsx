@@ -9,6 +9,7 @@ import {
   formatShortTime,
 } from '../utils/matchUtils.js';
 import { getTeamFlagPath } from '../utils/flagUtils.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import './MatchCard.css';
 
 // ── Status badge ─────────────────────────────────────────────────
@@ -60,8 +61,9 @@ function TeamRow({ name, isTbd }) {
 
 // ── The card ─────────────────────────────────────────────────────
 function MatchCard({ match, featured = false }) {
-  const navigate  = useNavigate();
-  const status    = getMatchStatus(match.date);
+  const navigate      = useNavigate();
+  const { session, loading: authLoading } = useAuth();
+  const status        = getMatchStatus(match.date);
   const isHost    = isHostNationMatch(match);
   const isPremium = isPremiumMatch(match);
   const isOpening = isOpeningMatch(match);
@@ -127,9 +129,16 @@ function MatchCard({ match, featured = false }) {
       <div className="mc-watch-party">
         <button
           className="mc-interested-btn"
+          disabled={authLoading}
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/watch-party/${match.matchNumber}`);
+            if (!session) {
+              // Not logged in — send to login with a redirect back here
+              const dest = `/watch-party/${match.matchNumber}`;
+              navigate(`/login?redirect=${encodeURIComponent(dest)}`);
+            } else {
+              navigate(`/watch-party/${match.matchNumber}`);
+            }
           }}
         >
           <span className="mc-interested-icon">🍺</span>

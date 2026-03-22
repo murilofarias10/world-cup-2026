@@ -1,8 +1,21 @@
+import { useNavigate, useParams } from 'react-router-dom';
+
 // ── VenueCard ────────────────────────────────────────────────────
 // Displays a single venue with name, location, capacity, interest
-// count, and a select/deselect button.
+// count, select/deselect button, and a link to the full venue page.
 
 function VenueCard({ venue, selected, onSelect }) {
+  const navigate  = useNavigate();
+  const { matchId } = useParams();
+
+  function handleOpenVenue(e) {
+    e.stopPropagation();
+    const url = matchId
+      ? `/venue/${venue.id}?matchId=${matchId}`
+      : `/venue/${venue.id}`;
+    navigate(url);
+  }
+
   return (
     <article className={`wp-venue-card${selected ? ' wp-venue-card--selected' : ''}`}>
       <div className="wp-vc-header">
@@ -28,12 +41,17 @@ function VenueCard({ venue, selected, onSelect }) {
         </span>
       </div>
 
-      <button
-        className={`wp-vc-btn${selected ? ' wp-vc-btn--selected' : ''}`}
-        onClick={() => onSelect(venue)}
-      >
-        {selected ? '✓ Venue Selected' : 'Select Venue'}
-      </button>
+      <div className="wp-vc-actions">
+        <button
+          className={`wp-vc-btn${selected ? ' wp-vc-btn--selected' : ''}`}
+          onClick={() => onSelect(venue)}
+        >
+          {selected ? '✓ Venue Selected' : 'Select Venue'}
+        </button>
+        <button className="wp-vc-open-btn" onClick={handleOpenVenue}>
+          Explore →
+        </button>
+      </div>
     </article>
   );
 }

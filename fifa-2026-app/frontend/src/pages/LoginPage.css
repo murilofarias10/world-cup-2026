@@ -249,6 +249,44 @@
 }
 
 .lp-signout {
-  margin-top: 1.25rem;
+  margin-top: 0.5rem;
   padding: 0.6rem 2rem;
+}
+
+/* ── Redirect / Watch-Party context ────────────────────────────────────────── */
+.lp-subtitle--accent {
+  color: var(--color-accent, #c8102e);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.lp-redirect-note {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  background: #fff8f8;
+  border: 1px solid rgba(200, 16, 46, 0.15);
+  border-radius: 8px;
+  padding: 0.65rem 0.9rem;
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.lp-guest-note {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  margin: 0.25rem 0 0;
+}
+
+.lp-guest-link {
+  color: var(--color-accent, #c8102e);
+  text-decoration: none;
+  font-weight: 600;
+}
+.lp-guest-link:hover { text-decoration: underline; }
+
+/* Continue button for already-logged-in users */
+.lp-continue-btn {
+  width: 100%;
+  margin-top: 0.75rem;
 }
