@@ -39,8 +39,6 @@
 .match-card--featured {
   border-width: 2px;
 }
-.match-card--featured .mc-team { font-size: 1.1rem; }
-.match-card--featured .mc-body { padding: 1rem 1rem; }
 
 /* ── Host nation gold strip (bottom) ────────────────────────────── */
 .mc-host-strip {
@@ -166,7 +164,24 @@
   flex: 1;
 }
 
-.mc-team {
+/* Team row: flag + name */
+.mc-team-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow: hidden;
+}
+
+.mc-team-flag {
+  width: 26px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.mc-team-name {
   font-size: 0.97rem;
   font-weight: 800;
   color: var(--color-text);
@@ -176,12 +191,16 @@
   white-space: nowrap;
 }
 
-.mc-team--tbd {
+.mc-team--tbd .mc-team-name {
   font-weight: 400;
   font-style: italic;
   color: #c4c9d4;
   font-size: 0.88rem;
 }
+
+/* Keep legacy class for featured size override */
+.match-card--featured .mc-team-name { font-size: 1.1rem; }
+.match-card--featured .mc-body      { padding: 1rem 1rem; }
 
 .mc-vs {
   font-size: 0.62rem;

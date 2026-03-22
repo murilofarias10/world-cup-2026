@@ -7,6 +7,7 @@ import {
   formatShortDate,
   formatShortTime,
 } from '../utils/matchUtils.js';
+import { getTeamFlagPath } from '../utils/flagUtils.js';
 import './MatchCard.css';
 
 // ── Status badge ─────────────────────────────────────────────────
@@ -35,20 +36,41 @@ function RoundBadge({ round }) {
   return <span className="mc-badge-round">{round}</span>;
 }
 
+// ── Team row with optional flag ──────────────────────────────────
+function TeamRow({ name, isTbd }) {
+  const flagPath = isTbd ? null : getTeamFlagPath(name);
+
+  return (
+    <span className={`mc-team-row ${isTbd ? 'mc-team--tbd' : ''}`}>
+      {flagPath && (
+        <img
+          src={flagPath}
+          alt={name}
+          className="mc-team-flag"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        />
+      )}
+      <span className="mc-team-name">
+        {isTbd ? 'TBD' : name}
+      </span>
+    </span>
+  );
+}
+
 // ── The card ─────────────────────────────────────────────────────
 function MatchCard({ match, featured = false }) {
-  const status   = getMatchStatus(match.date);
-  const isHost   = isHostNationMatch(match);
+  const status    = getMatchStatus(match.date);
+  const isHost    = isHostNationMatch(match);
   const isPremium = isPremiumMatch(match);
   const isOpening = isOpeningMatch(match);
-  const isTBD    = (t) => !t || t === 'To be announced';
+  const isTBD     = (t) => !t || t === 'To be announced';
 
   const classes = [
     'match-card',
-    featured   ? 'match-card--featured'  : '',
-    isPremium  ? 'match-card--premium'   : '',
-    isHost     ? 'match-card--host'      : '',
-    isOpening  ? 'match-card--opening'   : '',
+    featured   ? 'match-card--featured' : '',
+    isPremium  ? 'match-card--premium'  : '',
+    isHost     ? 'match-card--host'     : '',
+    isOpening  ? 'match-card--opening'  : '',
     status === 'live' ? 'match-card--live' : '',
   ].filter(Boolean).join(' ');
 
@@ -62,7 +84,9 @@ function MatchCard({ match, featured = false }) {
           {match.group
             ? <GroupBadge group={match.group} />
             : <RoundBadge round={match.round} />}
-          {isOpening && <span className="mc-label mc-label--opening">Opening</span>}
+          {isOpening && (
+            <span className="mc-label mc-label--opening">Opening</span>
+          )}
           {isPremium && !isOpening && (
             <span className="mc-label mc-label--premium">
               {match.round === 'Finals' ? '🏆 Final' : '🥈 Semi'}
@@ -77,15 +101,11 @@ function MatchCard({ match, featured = false }) {
 
       {/* Teams */}
       <div className="mc-body">
-        <span className={`mc-team ${isTBD(match.homeTeam) ? 'mc-team--tbd' : ''}`}>
-          {isTBD(match.homeTeam) ? 'TBD' : match.homeTeam}
-        </span>
+        <TeamRow name={match.homeTeam} isTbd={isTBD(match.homeTeam)} />
         {match.result
           ? <span className="mc-score">{match.result}</span>
           : <span className="mc-vs">vs</span>}
-        <span className={`mc-team ${isTBD(match.awayTeam) ? 'mc-team--tbd' : ''}`}>
-          {isTBD(match.awayTeam) ? 'TBD' : match.awayTeam}
-        </span>
+        <TeamRow name={match.awayTeam} isTbd={isTBD(match.awayTeam)} />
       </div>
 
       {/* Footer */}

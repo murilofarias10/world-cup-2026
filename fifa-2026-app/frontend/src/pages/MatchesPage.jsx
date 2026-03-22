@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { fetchMatches } from '../services/api.js';
 import MatchCard from '../components/MatchCard.jsx';
+import { VENUE_TO_COUNTRY } from '../utils/flagUtils.js';
 
 import {
   isToday,
@@ -11,28 +12,47 @@ import './MatchesPage.css';
 
 // ── Constants ────────────────────────────────────────────────────
 const HERO_STATS = [
-  { value: '48',   label: 'Teams' },
-  { value: '104',  label: 'Matches' },
-  { value: '16',   label: 'Venues' },
-  { value: '3',    label: 'Host Nations' },
-  { value: '12',   label: 'Groups' },
+  { value: '48',  label: 'Teams' },
+  { value: '104', label: 'Matches' },
+  { value: '16',  label: 'Venues' },
+  { value: '3',   label: 'Host Nations' },
+  { value: '12',  label: 'Groups' },
 ];
 
 const FILTERS = [
-  { id: 'all',           label: 'All',   group: 'main' },
-  { id: 'today',         label: 'Today', group: 'main' },
-  { id: '1',             label: 'MD 1',  group: 'group' },
-  { id: '2',             label: 'MD 2',  group: 'group' },
-  { id: '3',             label: 'MD 3',  group: 'group' },
-  { id: 'Round of 32',   label: 'R32',   group: 'ko' },
-  { id: 'Round of 16',   label: 'R16',   group: 'ko' },
-  { id: 'Quarter Finals',label: 'QF',    group: 'ko' },
-  { id: 'Semi Finals',   label: 'SF',    group: 'ko' },
-  { id: 'Finals',        label: 'Final', group: 'ko' },
+  { id: 'all',            label: 'All',   group: 'main' },
+  { id: 'today',          label: 'Today', group: 'main' },
+  { id: '1',              label: 'MD 1',  group: 'group' },
+  { id: '2',              label: 'MD 2',  group: 'group' },
+  { id: '3',              label: 'MD 3',  group: 'group' },
+  { id: 'Round of 32',    label: 'R32',   group: 'ko' },
+  { id: 'Round of 16',    label: 'R16',   group: 'ko' },
+  { id: 'Quarter Finals', label: 'QF',    group: 'ko' },
+  { id: 'Semi Finals',    label: 'SF',    group: 'ko' },
+  { id: 'Finals',         label: 'Final', group: 'ko' },
 ];
 
-const GROUP_STAGE_ROUNDS  = new Set(['1', '2', '3']);
-const KNOCKOUT_ROUNDS     = new Set(['Round of 32', 'Round of 16', 'Quarter Finals', 'Semi Finals', 'Finals']);
+const GROUP_STAGE_ROUNDS = new Set(['1', '2', '3']);
+const KNOCKOUT_ROUNDS    = new Set(['Round of 32', 'Round of 16', 'Quarter Finals', 'Semi Finals', 'Finals']);
+
+const HOST_NATIONS = [
+  { id: 'USA',    label: '🇺🇸 USA',    flag: 'USA'    },
+  { id: 'Canada', label: '🇨🇦 Canada', flag: 'Canada' },
+  { id: 'Mexico', label: '🇲🇽 Mexico', flag: 'Mexico' },
+];
+
+// Parse "DD/MM/YYYY HH:MM" → day string "DD/MM/YYYY"
+function getDayKey(dateStr) {
+  return dateStr?.split(' ')[0] ?? null;
+}
+
+function formatDayLabel(dayKey) {
+  if (!dayKey) return '';
+  const [dd, mm, yyyy] = dayKey.split('/');
+  return new Date(`${yyyy}-${mm}-${dd}`).toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric',
+  });
+}
 
 // ── Sub-components ───────────────────────────────────────────────
 function PageHero() {
@@ -68,9 +88,10 @@ function FilterBar({ active, onChange, todayCount }) {
         {FILTERS.map((f) => {
           const showSep = prevGroup !== null && f.group !== prevGroup;
           prevGroup = f.group;
-          const label = f.id === 'today'
-            ? `Today${todayCount ? ` (${todayCount})` : ''}`
-            : f.label;
+          const label =
+            f.id === 'today'
+              ? `Today${todayCount ? ` (${todayCount})` : ''}`
+              : f.label;
 
           return (
             <span key={f.id} className="mp-filter-wrap">
@@ -85,6 +106,106 @@ function FilterBar({ active, onChange, todayCount }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+// ── Advanced filter bar ───────────────────────────────────────────
+function AdvancedFilters({
+  countryFilter, setCountryFilter,
+  locFilter,     setLocFilter,
+  dayFilter,     setDayFilter,
+  locations,     days,
+}) {
+  const [open, setOpen] = useState(false);
+  const hasActive = countryFilter || locFilter || dayFilter;
+
+  function clearAll() {
+    setCountryFilter('');
+    setLocFilter('');
+    setDayFilter('');
+  }
+
+  return (
+    <div className={`mp-adv-bar ${hasActive ? 'mp-adv-bar--active' : ''}`}>
+      <button
+        className="mp-adv-toggle"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
+        <span className="mp-adv-toggle-icon">⚙</span>
+        <span>Advanced Filters</span>
+        {hasActive && <span className="mp-adv-badge">●</span>}
+        <span className="mp-adv-caret">{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <div className="mp-adv-panel">
+          {/* Country / host nation */}
+          <div className="mp-adv-row">
+            <span className="mp-adv-label">Host Nation</span>
+            <div className="mp-adv-chips">
+              {HOST_NATIONS.map(({ id, label, flag }) => (
+                <button
+                  key={id}
+                  className={`mp-adv-chip ${countryFilter === id ? 'active' : ''}`}
+                  onClick={() => setCountryFilter(countryFilter === id ? '' : id)}
+                >
+                  <img
+                    src={`/flags/${flag}.png`}
+                    alt={id}
+                    className="mp-chip-flag"
+                  />
+                  {id}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Location / venue */}
+          <div className="mp-adv-row">
+            <span className="mp-adv-label">Venue</span>
+            <select
+              className="mp-adv-select"
+              value={locFilter}
+              onChange={(e) => {
+                setLocFilter(e.target.value);
+                if (e.target.value) setCountryFilter('');
+              }}
+            >
+              <option value="">All venues</option>
+              {locations.map((loc) => (
+                <option key={loc} value={loc}>
+                  {loc.replace(' Stadium', '')}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Day */}
+          <div className="mp-adv-row">
+            <span className="mp-adv-label">Day</span>
+            <select
+              className="mp-adv-select"
+              value={dayFilter}
+              onChange={(e) => setDayFilter(e.target.value)}
+            >
+              <option value="">All dates</option>
+              {days.map((d) => (
+                <option key={d} value={d}>
+                  {formatDayLabel(d)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {hasActive && (
+            <button className="mp-adv-clear" onClick={clearAll}>
+              ✕ Clear filters
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -165,8 +286,13 @@ function Spinner() {
 export default function MatchesPage() {
   const [allMatches, setAllMatches] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState(null);
+
+  // Advanced filter state
+  const [countryFilter, setCountryFilter] = useState('');
+  const [locFilter,     setLocFilter]     = useState('');
+  const [dayFilter,     setDayFilter]     = useState('');
 
   useEffect(() => {
     fetchMatches()
@@ -177,7 +303,7 @@ export default function MatchesPage() {
 
   const todayMatches = useMemo(
     () => allMatches.filter((m) => isToday(m.date)),
-    [allMatches]
+    [allMatches],
   );
 
   const featuredMatches = useMemo(() => {
@@ -185,7 +311,6 @@ export default function MatchesPage() {
       .filter(isFeaturedMatch)
       .sort((a, b) => getMatchPriority(b) - getMatchPriority(a))
       .slice(0, 3);
-    // Pad with first upcoming group matches if needed
     if (base.length < 3) {
       const ids = new Set(base.map((m) => m.matchNumber));
       const extras = allMatches
@@ -196,14 +321,60 @@ export default function MatchesPage() {
     return base;
   }, [allMatches]);
 
-  const filteredMatches = useMemo(() => {
-    if (activeFilter === 'all')   return allMatches;
-    if (activeFilter === 'today') return todayMatches;
-    return allMatches.filter((m) => m.round === activeFilter);
-  }, [allMatches, activeFilter, todayMatches]);
+  // Unique locations and days for dropdowns
+  const uniqueLocations = useMemo(
+    () => [...new Set(allMatches.map((m) => m.location).filter(Boolean))].sort(),
+    [allMatches],
+  );
 
-  const groupStageMatches  = useMemo(() => allMatches.filter((m) => GROUP_STAGE_ROUNDS.has(m.round)),  [allMatches]);
-  const knockoutMatches    = useMemo(() => allMatches.filter((m) => KNOCKOUT_ROUNDS.has(m.round)),      [allMatches]);
+  const uniqueDays = useMemo(
+    () =>
+      [...new Set(allMatches.map((m) => getDayKey(m.date)).filter(Boolean))].sort(
+        (a, b) => {
+          const toISO = (d) => {
+            const [dd, mm, yyyy] = d.split('/');
+            return `${yyyy}-${mm}-${dd}`;
+          };
+          return toISO(a).localeCompare(toISO(b));
+        },
+      ),
+    [allMatches],
+  );
+
+  const groupStageMatches = useMemo(
+    () => allMatches.filter((m) => GROUP_STAGE_ROUNDS.has(m.round)),
+    [allMatches],
+  );
+  const knockoutMatches = useMemo(
+    () => allMatches.filter((m) => KNOCKOUT_ROUNDS.has(m.round)),
+    [allMatches],
+  );
+
+  // Apply round + advanced filters
+  const applyAdvanced = (list) => {
+    let result = list;
+    if (countryFilter)
+      result = result.filter(
+        (m) => VENUE_TO_COUNTRY[m.location] === countryFilter,
+      );
+    if (locFilter)
+      result = result.filter((m) => m.location === locFilter);
+    if (dayFilter)
+      result = result.filter((m) => getDayKey(m.date) === dayFilter);
+    return result;
+  };
+
+  const filteredMatches = useMemo(() => {
+    let base;
+    if (activeFilter === 'all')   base = allMatches;
+    else if (activeFilter === 'today') base = todayMatches;
+    else base = allMatches.filter((m) => m.round === activeFilter);
+    return applyAdvanced(base);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allMatches, activeFilter, todayMatches, countryFilter, locFilter, dayFilter]);
+
+  const hasAdvanced = countryFilter || locFilter || dayFilter;
+  const showSections = activeFilter === 'all' && !hasAdvanced;
 
   return (
     <div className="matches-page">
@@ -215,11 +386,19 @@ export default function MatchesPage() {
         todayCount={todayMatches.length}
       />
 
+      <AdvancedFilters
+        countryFilter={countryFilter} setCountryFilter={setCountryFilter}
+        locFilter={locFilter}         setLocFilter={setLocFilter}
+        dayFilter={dayFilter}         setDayFilter={setDayFilter}
+        locations={uniqueLocations}
+        days={uniqueDays}
+      />
+
       <div className="mp-content">
         {loading && <Spinner />}
         {error   && <p className="mp-error">{error}</p>}
 
-        {!loading && !error && activeFilter === 'all' && (
+        {!loading && !error && showSections && (
           <>
             <TodaySection matches={todayMatches} />
             <FeaturedSection matches={featuredMatches} />
@@ -239,21 +418,18 @@ export default function MatchesPage() {
               count={knockoutMatches.length}
             />
             <MatchGrid matches={knockoutMatches} />
-
           </>
         )}
 
-        {!loading && !error && activeFilter !== 'all' && (
-          <>
-            <MatchGrid
-              matches={filteredMatches}
-              emptyMsg={
-                activeFilter === 'today'
-                  ? 'No matches scheduled for today.'
-                  : 'No matches found for this round.'
-              }
-            />
-          </>
+        {!loading && !error && !showSections && (
+          <MatchGrid
+            matches={filteredMatches}
+            emptyMsg={
+              activeFilter === 'today'
+                ? 'No matches scheduled for today.'
+                : 'No matches found for the selected filters.'
+            }
+          />
         )}
       </div>
     </div>
