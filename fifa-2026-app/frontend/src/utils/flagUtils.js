@@ -54,7 +54,11 @@ export function getTeamFlagPath(teamName) {
   return `/flags/${encodeURIComponent(flagName)}.png`;
 }
 
-// All flag filenames available in /public/flags/ (for the full flags grid)
+// The 42 confirmed nations for the carousel — derived directly from
+// TEAM_TO_FLAG so it is always in sync and never contains play-off placeholders.
+export const CAROUSEL_NATIONS = Object.keys(TEAM_TO_FLAG).map((name) => ({ name }));
+
+// Legacy list kept for reference; no longer used in the carousel.
 export const ALL_TEAM_FLAGS = [
   'Algeria', 'Argentina', 'Australia', 'Austria', 'Belgium', 'Brazil',
   'Canada', 'Cape Verde', 'Colombia', 'Croatia', 'Curacao', 'Ecuador',

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import {
   getGroupStyle,
   getMatchStatus,
@@ -59,6 +60,7 @@ function TeamRow({ name, isTbd }) {
 
 // ── The card ─────────────────────────────────────────────────────
 function MatchCard({ match, featured = false }) {
+  const navigate  = useNavigate();
   const status    = getMatchStatus(match.date);
   const isHost    = isHostNationMatch(match);
   const isPremium = isPremiumMatch(match);
@@ -119,6 +121,20 @@ function MatchCard({ match, featured = false }) {
             <span className="mc-venue">{venue}</span>
           </>
         )}
+      </div>
+
+      {/* Watch Party CTA */}
+      <div className="mc-watch-party">
+        <button
+          className="mc-interested-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/watch-party/${match.matchNumber}`);
+          }}
+        >
+          <span className="mc-interested-icon">🍺</span>
+          I&apos;m Interested
+        </button>
       </div>
 
       {/* Host nation accent strip */}

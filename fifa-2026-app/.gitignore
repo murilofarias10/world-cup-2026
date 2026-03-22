@@ -1,26 +1,26 @@
-# ── Dependencies ──────────────────────────────────────────────
+# ── Dependencies ──────────────────────────────────────────────────
 node_modules/
 .pnp
 .pnp.js
 
-# ── Environment files ─────────────────────────────────────────
+# ── Environment files ──────────────────────────────────────────────
 .env
 .env.local
 .env.*.local
 .env.production
 .env.staging
-# keep .env.example tracked (it is the safe reference template)
+# .env.example is intentionally tracked — it is the safe reference template
 
-# ── Build output ──────────────────────────────────────────────
+# ── Build output ───────────────────────────────────────────────────
 dist/
 build/
 out/
 
-# ── Vite / React dev cache ────────────────────────────────────
+# ── Vite cache ─────────────────────────────────────────────────────
 .vite/
 *.tsbuildinfo
 
-# ── Logs ──────────────────────────────────────────────────────
+# ── Logs ───────────────────────────────────────────────────────────
 logs/
 *.log
 npm-debug.log*
@@ -29,20 +29,21 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# ── Runtime / process ─────────────────────────────────────────
+# ── Runtime / process ──────────────────────────────────────────────
 pids/
 *.pid
 *.seed
 *.pid.lock
 
-# ── Security & secrets ────────────────────────────────────────
+# ── Security & secrets ─────────────────────────────────────────────
 *.pem
 *.key
 *.p12
 *.pfx
+# .npmrc may contain auth tokens — keep out of source control
 .npmrc
 
-# ── OS files ──────────────────────────────────────────────────
+# ── OS files ───────────────────────────────────────────────────────
 .DS_Store
 .DS_Store?
 ._*
@@ -50,7 +51,7 @@ Thumbs.db
 desktop.ini
 ehthumbs.db
 
-# ── Editor / IDE ──────────────────────────────────────────────
+# ── Editor / IDE ───────────────────────────────────────────────────
 .vscode/
 .idea/
 *.suo
@@ -61,6 +62,16 @@ ehthumbs.db
 *.sublime-project
 *.sublime-workspace
 
-# ── Coverage / test output ────────────────────────────────────
+# Cursor IDE — local state only; rules in .cursor/rules/ should be tracked
+.cursor/chat/
+.cursor/scratchpad/
+
+# ── Test & coverage output ─────────────────────────────────────────
 coverage/
 .nyc_output/
+
+# ── Misc ───────────────────────────────────────────────────────────
+# Temporary screenshot dumps (e.g. from browser automation)
+screenshots/
+*.tmp
+*.temp

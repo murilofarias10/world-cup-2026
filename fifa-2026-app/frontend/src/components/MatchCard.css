@@ -237,3 +237,40 @@
 .mc-time   { flex-shrink: 0; }
 .mc-venue  { overflow: hidden; text-overflow: ellipsis; }
 .mc-sep    { color: #d1d5db; flex-shrink: 0; }
+
+/* ── Watch Party CTA ─────────────────────────────────────────────── */
+.mc-watch-party {
+  padding: 0.5rem 0.85rem 0.6rem;
+  background: #fafafa;
+  border-top: 1px solid #f1f1f1;
+}
+
+.mc-interested-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.75rem;
+  border: 1.5px solid #e0d5e8;
+  border-radius: 8px;
+  background: #fff;
+  color: #56042c;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+.mc-interested-btn:hover {
+  background: #56042c;
+  border-color: #56042c;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(86, 4, 44, 0.22);
+}
+.mc-interested-btn:hover .mc-interested-icon { filter: grayscale(0); }
+
+.mc-interested-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+}

@@ -1,0 +1,351 @@
+/* ─────────────────────────────────────────────────────────────────
+   TeamsCarousel.css
+   Two-row infinite marquee  ·  row 1 → left  ·  row 2 → right
+   Sections: root · header · marquee wrap/rows/track · MarqueeCard
+             · team modal
+───────────────────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════════
+   ROOT
+══════════════════════════════════════════════════════════════════ */
+.tc-root {
+  margin-bottom: 2rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════════════════════════ */
+.tc-header {
+  margin-bottom: 1rem;
+}
+
+.tc-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--color-text);
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+}
+
+.tc-subtitle {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.2rem;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MARQUEE WRAPPER
+   Contains both rows. overflow:hidden clips the tracks.
+   The left/right mask-image fades cards in/out at the edges.
+══════════════════════════════════════════════════════════════════ */
+.tc-marquee-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1.5px solid var(--color-border);
+  background: #f8f9fb;
+  padding: 0.5rem 0;
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 5%,
+    #000 95%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 5%,
+    #000 95%,
+    transparent 100%
+  );
+}
+
+/* Hover pauses BOTH rows simultaneously — pure CSS, no JS needed */
+.tc-marquee-wrap:hover .tc-marquee-track {
+  animation-play-state: paused;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MARQUEE ROW  (one strip)
+══════════════════════════════════════════════════════════════════ */
+.tc-marquee-row {
+  overflow: hidden;          /* extra clip guard per row */
+  display: flex;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MARQUEE TRACK  (the scrolling strip)
+   width: max-content keeps all cards in one line.
+   --md is the animation duration set via inline style in JS.
+══════════════════════════════════════════════════════════════════ */
+.tc-marquee-track {
+  display: flex;
+  gap: 12px;
+  padding: 0 6px;
+  width: max-content;
+  will-change: transform;
+}
+
+/* Row 1 — scrolls leftward (items flow right → left) */
+.tc-marquee-track--left {
+  animation: tc-scroll-left var(--md, 45s) linear infinite;
+}
+
+/* Row 2 — scrolls rightward (items flow left → right) */
+.tc-marquee-track--right {
+  animation: tc-scroll-right var(--md, 45s) linear infinite;
+}
+
+/* The trick: doubled array + move ±50% = perfect seamless loop */
+@keyframes tc-scroll-left {
+  from { transform: translateX(0);    }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes tc-scroll-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0);    }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MARQUEE CARD  (compact 104 px card)
+══════════════════════════════════════════════════════════════════ */
+.tc-mc {
+  position: relative;
+  width: 104px;
+  flex-shrink: 0;
+  background: #fff;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0.45rem 0.42rem;
+  gap: 0.3rem;
+
+  transition:
+    transform    0.18s ease,
+    box-shadow   0.18s ease,
+    border-color 0.18s ease;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tc-mc:hover {
+  transform: translateY(-5px) scale(1.06);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.13);
+  border-color: rgba(86, 4, 44, 0.25);
+  z-index: 5;
+}
+
+.tc-mc:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ── Host nation ─────────────────────────────────────────────── */
+.tc-mc--host {
+  border-color: var(--color-gold);
+  background: linear-gradient(160deg, #fffdf5 0%, #fff 70%);
+}
+.tc-mc--host:hover {
+  border-color: var(--color-gold);
+  box-shadow: 0 8px 22px rgba(212, 168, 67, 0.26);
+}
+
+.tc-mc-host-label {
+  font-size: 0.48rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #92400e;
+  background: rgba(212, 168, 67, 0.2);
+  border-radius: 999px;
+  padding: 0.1rem 0.38rem;
+  flex-shrink: 0;
+}
+
+/* ── Flag ───────────────────────────────────────────────────── */
+.tc-mc-flag-wrap {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f3f4f6;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+.tc-mc-flag {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease;
+}
+.tc-mc:hover .tc-mc-flag { transform: scale(1.08); }
+
+.tc-mc-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #8b1a4a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 1px;
+}
+
+/* ── Name ───────────────────────────────────────────────────── */
+.tc-mc-name {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  line-height: 1.3;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TEAM MODAL
+══════════════════════════════════════════════════════════════════ */
+.tc-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: tc-backdrop-in 0.18s ease both;
+}
+
+@keyframes tc-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.tc-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  padding: 2rem 2rem 1.75rem;
+  width: min(340px, 90vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.24);
+  animation: tc-modal-in 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes tc-modal-in {
+  from { opacity: 0; transform: translateY(22px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.tc-modal-close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border);
+  background: #f3f4f6;
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.tc-modal-close:hover { background: #e5e7eb; color: var(--color-text); }
+
+.tc-modal-flag {
+  width: 140px;
+  height: 94px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+}
+
+.tc-modal-flag-placeholder {
+  width: 140px;
+  height: 94px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #8b1a4a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 2px;
+}
+
+.tc-modal-name {
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-align: center;
+  color: var(--color-text);
+}
+
+.tc-modal-host-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #92400e;
+  background: rgba(212, 168, 67, 0.15);
+  border: 1px solid rgba(212, 168, 67, 0.35);
+  border-radius: 999px;
+  padding: 0.22rem 0.75rem;
+}
+
+.tc-modal-group {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: rgba(86, 4, 44, 0.07);
+  border-radius: 999px;
+  padding: 0.22rem 0.85rem;
+}
+
+.tc-modal-note {
+  font-size: 0.76rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.3rem;
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .tc-title      { font-size: 1.1rem; }
+  .tc-mc         { width: 88px; }
+  .tc-mc-name    { font-size: 0.58rem; }
+}
+
+@media (max-width: 480px) {
+  .tc-title      { font-size: 1rem; }
+  .tc-subtitle   { font-size: 0.72rem; }
+  .tc-mc         { width: 78px; padding: 0.4rem 0.35rem 0.35rem; }
+  .tc-mc-name    { font-size: 0.55rem; }
+}

@@ -1,0 +1,830 @@
+/* ─────────────────────────────────────────────────────────────────
+   WatchPartyPage.css
+   Covers: page shell, topbar, layout, VenueList, VenueCard,
+           MatchDetails, ChatPanel, error/loading states.
+───────────────────────────────────────────────────────────────── */
+
+/* ── Page shell ─────────────────────────────────────────────────── */
+.wpp-root {
+  /* Pull edge-to-edge like MatchesPage */
+  margin: -2rem -1.5rem;
+  min-height: calc(100vh - var(--navbar-h));
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+/* ── Top navigation bar ─────────────────────────────────────────── */
+.wpp-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #3a0020 0%, var(--color-primary) 40%, #8b1a4a 100%);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.wpp-back-link {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.wpp-back-link:hover { background: rgba(255, 255, 255, 0.22); }
+
+.wpp-topbar-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.wpp-topbar-eyebrow {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.wpp-topbar-title {
+  font-size: 1rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 360px;
+}
+
+.wpp-topbar-right {
+  flex-shrink: 0;
+  min-width: 160px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.wpp-topbar-venue-pill {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* ── Split layout ───────────────────────────────────────────────── */
+.wpp-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── RIGHT panel ────────────────────────────────────────────────── */
+.wpp-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f0f2f5;
+  gap: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   VENUE LIST  (left panel)
+══════════════════════════════════════════════════════════════════ */
+.wp-venue-list {
+  width: 33%;
+  min-width: 260px;
+  max-width: 380px;
+  background: #f8f9fb;
+  border-right: 1.5px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.wp-vl-header {
+  padding: 1.25rem 1.25rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.wp-vl-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 0.2rem;
+}
+
+.wp-vl-sub {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.wp-vl-search {
+  margin: 0 1.25rem 0.75rem;
+  padding: 0.55rem 0.85rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  background: #fff;
+  color: var(--color-text);
+  transition: border-color 0.15s;
+  flex-shrink: 0;
+}
+.wp-vl-search:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+.wp-vl-search::placeholder { color: #b0b7c3; }
+
+.wp-vl-filters {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0 1.25rem 0.85rem;
+  flex-shrink: 0;
+}
+
+.wp-vl-filter-btn {
+  flex: 1;
+  padding: 0.35rem 0.5rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.wp-vl-filter-btn:hover   { border-color: var(--color-primary); color: var(--color-primary); }
+.wp-vl-filter-btn.active  { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+
+.wp-vl-cards {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+.wp-vl-cards::-webkit-scrollbar { width: 4px; }
+.wp-vl-cards::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+.wp-vl-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  font-size: 0.83rem;
+  color: var(--color-text-secondary);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   VENUE CARD
+══════════════════════════════════════════════════════════════════ */
+.wp-venue-card {
+  background: #fff;
+  border: 1.5px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+}
+.wp-venue-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+  transform: translateY(-2px);
+  border-color: rgba(86, 4, 44, 0.2);
+}
+.wp-venue-card--selected {
+  border-color: var(--color-primary);
+  background: linear-gradient(160deg, #fcf5f8 0%, #fff 70%);
+  box-shadow: 0 0 0 3px rgba(86, 4, 44, 0.1), 0 4px 16px rgba(86, 4, 44, 0.08);
+}
+
+.wp-vc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.wp-vc-name {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.wp-vc-address {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.15rem;
+}
+
+.wp-vc-selected-badge {
+  font-size: 0.67rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: rgba(86, 4, 44, 0.08);
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.wp-vc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.75rem;
+}
+
+.wp-vc-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+}
+.wp-vc-meta-icon { font-size: 0.75rem; }
+.wp-vc-interest  { color: #b45309; font-weight: 600; }
+
+.wp-vc-btn {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--color-primary);
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.wp-vc-btn:hover        { background: var(--color-primary); color: #fff; }
+.wp-vc-btn--selected    { background: var(--color-primary); color: #fff; }
+.wp-vc-btn--selected:hover { background: #3a0020; border-color: #3a0020; }
+
+/* ══════════════════════════════════════════════════════════════════
+   MATCH DETAILS  (right panel – top section)
+══════════════════════════════════════════════════════════════════ */
+.wp-match-details {
+  background: #fff;
+  border-bottom: 1.5px solid var(--color-border);
+  padding: 1.25rem 1.5rem;
+  flex-shrink: 0;
+}
+
+.wp-md-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.wp-md-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: rgba(86, 4, 44, 0.08);
+  color: var(--color-primary);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.wp-md-status {
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 0.18rem 0.55rem;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.wp-md-status--scheduled { background: #f0f9ff; color: #0369a1; }
+.wp-md-status--live      { background: #dcfce7; color: #15803d; }
+.wp-md-status--finished  { background: #f3f4f6; color: #6b7280; }
+
+@keyframes wp-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(1.4); }
+}
+.wp-md-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #16a34a;
+  animation: wp-pulse 1.2s ease-in-out infinite;
+}
+
+.wp-md-num {
+  font-size: 0.67rem;
+  color: #c4c9d4;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+/* Teams matchup */
+.wp-md-matchup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.wp-md-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.wp-md-team-flag {
+  width: 52px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.wp-md-team-name {
+  font-size: 1rem;
+  font-weight: 800;
+  text-align: center;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.wp-md-center { text-align: center; flex-shrink: 0; }
+
+.wp-md-vs {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #c4c9d4;
+  letter-spacing: 2px;
+}
+
+.wp-md-score {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--color-primary);
+  letter-spacing: 3px;
+}
+
+/* Meta row */
+.wp-md-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0;
+}
+
+.wp-md-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.wp-md-meta-icon { font-size: 0.78rem; }
+.wp-md-meta-sep  { color: #d1d5db; }
+
+/* Venue callout */
+.wp-md-venue-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  background: linear-gradient(135deg, #fcf5f8 0%, #fff8e1 100%);
+  border: 1.5px solid rgba(212, 168, 67, 0.35);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+
+.wp-md-venue-callout-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.wp-md-venue-callout-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.15rem;
+}
+
+.wp-md-venue-callout-name {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.wp-md-venue-callout-sub {
+  font-size: 0.73rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.15rem;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   CHAT PANEL  (right panel – bottom section)
+══════════════════════════════════════════════════════════════════ */
+.wp-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+  min-height: 0;
+}
+
+/* ── Join gate (pre-joined state) ──────────────────────────────── */
+.wp-chat-gate {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  gap: 0.75rem;
+  background: #fff;
+}
+
+.wp-chat-gate-icon {
+  font-size: 2.4rem;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.wp-chat-gate-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.wp-chat-gate-desc {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  max-width: 340px;
+}
+
+.wp-chat-gate-count {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: #16a34a;
+  font-weight: 600;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.wp-chat-gate-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #16a34a;
+  animation: wp-blink 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.wp-chat-gate-btn {
+  margin-top: 0.5rem;
+  padding: 0.65rem 2rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  letter-spacing: 0.2px;
+}
+.wp-chat-gate-btn:hover {
+  background: #3a0020;
+  box-shadow: 0 4px 14px rgba(86, 4, 44, 0.3);
+}
+
+/* ── Chat header (joined state) ─────────────────────────────────── */
+.wp-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1.5px solid var(--color-border);
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+.wp-chat-header-icon { font-size: 1.15rem; }
+
+.wp-chat-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 0.05rem;
+}
+
+.wp-chat-sub {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+}
+
+.wp-chat-header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.wp-chat-online {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.wp-chat-leave-btn {
+  padding: 0.3rem 0.75rem;
+  border: 1.5px solid #fecdd3;
+  border-radius: 7px;
+  background: #fff1f2;
+  color: #be123c;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.wp-chat-leave-btn:hover {
+  background: #be123c;
+  border-color: #be123c;
+  color: #fff;
+}
+
+@keyframes wp-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+.wp-chat-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #16a34a;
+  animation: wp-blink 1.8s ease-in-out infinite;
+}
+
+/* Messages list */
+.wp-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+.wp-chat-messages::-webkit-scrollbar { width: 4px; }
+.wp-chat-messages::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+.wp-chat-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.wp-chat-msg--self {
+  flex-direction: row-reverse;
+}
+
+.wp-chat-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.wp-chat-bubble {
+  max-width: 72%;
+  background: #f3f4f6;
+  border-radius: 12px;
+  padding: 0.6rem 0.85rem;
+}
+.wp-chat-msg--self .wp-chat-bubble {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.wp-chat-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-bottom: 0.2rem;
+}
+
+.wp-chat-username {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.wp-chat-msg--self .wp-chat-username { color: rgba(255, 255, 255, 0.8); }
+
+.wp-chat-ts {
+  font-size: 0.65rem;
+  color: #9ca3af;
+}
+.wp-chat-msg--self .wp-chat-ts { color: rgba(255, 255, 255, 0.55); }
+
+.wp-chat-text {
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+.wp-chat-msg--self .wp-chat-text { color: #fff; }
+
+/* System message (join/leave notices) */
+.wp-chat-system {
+  text-align: center;
+  font-size: 0.72rem;
+  color: #9ca3af;
+  padding: 0.15rem 0;
+  position: relative;
+}
+.wp-chat-system::before,
+.wp-chat-system::after {
+  content: '';
+  display: inline-block;
+  width: 2rem;
+  height: 1px;
+  background: #e5e7eb;
+  vertical-align: middle;
+  margin: 0 0.5rem;
+}
+
+/* Input form */
+.wp-chat-form {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  border-top: 1.5px solid var(--color-border);
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+.wp-chat-input {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  font-size: 0.83rem;
+  background: #fff;
+  color: var(--color-text);
+  transition: border-color 0.15s;
+}
+.wp-chat-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+.wp-chat-input::placeholder { color: #b0b7c3; }
+
+.wp-chat-send {
+  padding: 0.6rem 1.2rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+.wp-chat-send:hover    { background: #3a0020; }
+.wp-chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ══════════════════════════════════════════════════════════════════
+   SPINNER / ERROR STATES
+══════════════════════════════════════════════════════════════════ */
+.wpp-spinner-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem;
+  gap: 1rem;
+}
+
+@keyframes wp-spin {
+  to { transform: rotate(360deg); }
+}
+.wpp-spinner {
+  width: 42px;
+  height: 42px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: wp-spin 0.75s linear infinite;
+}
+
+.wpp-spinner-label {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.wpp-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.wpp-error-icon  { font-size: 3rem; }
+.wpp-error-title { font-size: 1.4rem; font-weight: 800; }
+.wpp-error-msg   { font-size: 0.88rem; color: var(--color-text-secondary); }
+
+.wpp-back-btn {
+  margin-top: 0.5rem;
+  padding: 0.55rem 1.25rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.wpp-back-btn:hover { background: #3a0020; }
+
+/* ── Responsive tweaks ──────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .wpp-layout {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .wp-venue-list {
+    width: 100%;
+    max-width: none;
+    border-right: none;
+    border-bottom: 1.5px solid var(--color-border);
+    max-height: 420px;
+  }
+
+  .wpp-right {
+    min-height: 600px;
+  }
+
+  .wpp-topbar-right { display: none; }
+}
+
+@media (max-width: 560px) {
+  .wpp-topbar-title { font-size: 0.85rem; }
+  .wp-md-team-name  { font-size: 0.82rem; }
+  .wp-chat-bubble   { max-width: 85%; }
+}

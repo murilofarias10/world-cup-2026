@@ -4,6 +4,7 @@ import TeamsPage from './pages/TeamsPage.jsx';
 import MatchesPage from './pages/MatchesPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import BracketPage from './pages/BracketPage.jsx';
+import WatchPartyPage from './pages/WatchPartyPage.jsx';
 import ChatWidget from './components/ChatWidget.jsx';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route path="/teams" element={<TeamsPage />} />
           <Route path="/matches" element={<MatchesPage />} />
           <Route path="/bracket" element={<BracketPage />} />
+          <Route path="/watch-party/:matchId" element={<WatchPartyPage />} />
           <Route path="/login" element={<LoginPage />} />
         </Routes>
       </main>
