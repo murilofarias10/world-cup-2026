@@ -1,12 +1,17 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import path from 'path';
 import matchRoutes from './routes/matchRoutes.js';
 import teamRoutes from './routes/teamRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -22,6 +27,14 @@ app.use('/api/auth', authRoutes);
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+if (process.env.NODE_ENV === 'production') {
+  const publicDir = path.join(__dirname, 'public');
+  app.use(express.static(publicDir));
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(publicDir, 'index.html'));
+  });
+}
 
 const server = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
