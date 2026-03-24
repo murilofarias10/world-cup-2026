@@ -3,10 +3,10 @@ FROM node:20-alpine AS frontend-build
 
 WORKDIR /app/frontend
 
-COPY frontend/package.json frontend/package-lock.json ./
+COPY fifa-2026-app/frontend/package.json fifa-2026-app/frontend/package-lock.json ./
 RUN npm ci --legacy-peer-deps
 
-COPY frontend/ ./
+COPY fifa-2026-app/frontend/ ./
 
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
@@ -21,10 +21,10 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-COPY backend/package.json backend/package-lock.json ./
+COPY fifa-2026-app/backend/package.json fifa-2026-app/backend/package-lock.json ./
 RUN npm ci --omit=dev
 
-COPY backend/ ./
+COPY fifa-2026-app/backend/ ./
 COPY --from=frontend-build /app/frontend/dist ./public
 
 ENV NODE_ENV=production

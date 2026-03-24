@@ -1,0 +1,17 @@
+**/node_modules
+.git
+
+fifa-2026-app/frontend/dist
+fifa-2026-app/backend/logs
+
+*.md
+*.log
+.vscode
+.idea
+.cursor
+Thumbs.db
+.DS_Store
+
+fifa-2026-app/backend/.env
+fifa-2026-app/frontend/.env.local
+fifa-2026-app/frontend/.env.*.local
